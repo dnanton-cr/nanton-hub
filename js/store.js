@@ -29,13 +29,21 @@ async function kit() {
 }
 
 // Lee el currículo publicado. Si Firestore no responde o está vacío, usa data/{slug}.json del repositorio.
+const withTimeout = (p, ms) =>
+  Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error("tiempo agotado")), ms))]);
+
+async function fromFirestore(slug) {
+  const c = await core();
+  if (!c) return null;
+  const snap = await c.fs.getDoc(c.fs.doc(c.db, "people", slug));
+  if (snap.exists() && snap.data().current) return { cv: snap.data().current, source: "firestore", version: snap.data().version };
+  return null;
+}
+
 export async function loadCv(slug) {
   try {
-    const c = await core();
-    if (c) {
-      const snap = await c.fs.getDoc(c.fs.doc(c.db, "people", slug));
-      if (snap.exists() && snap.data().current) return { cv: snap.data().current, source: "firestore", version: snap.data().version };
-    }
+    const r = await withTimeout(fromFirestore(slug), 5000);
+    if (r) return r;
   } catch (e) { console.warn("Firestore no disponible, se usa el archivo.", e); }
   try {
     const r = await fetch(new URL(`../data/${slug}.json`, import.meta.url));
