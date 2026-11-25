@@ -67,7 +67,9 @@ export async function saveCv(slug, cv, note, user) {
   const batch = fs.writeBatch(db);
   batch.set(vref, { cv: clean, version: n, note: note || "", createdAt: fs.serverTimestamp(), createdBy: user.email });
   // mergeFields reemplaza `current` completo; así un dato borrado en el formulario también desaparece del público.
-  batch.set(ref, { current: clean, version: n, updatedAt: fs.serverTimestamp(), updatedBy: user.email },
+  // El documento público no guarda el correo de quien edita (eso queda solo en el historial, que no es público);
+  // deleteField limpia el que hubieran dejado versiones anteriores del código.
+  batch.set(ref, { current: clean, version: n, updatedAt: fs.serverTimestamp(), updatedBy: fs.deleteField() },
     { mergeFields: ["current", "version", "updatedAt", "updatedBy"] });
   await batch.commit();
   return n;
@@ -101,12 +103,12 @@ export async function savePdf(slug, name, bytes, user) {
   const { fs, db } = await core();
   const batch = fs.writeBatch(db);
   batch.set(fs.doc(db, "people", slug, "files", "cv"), {
-    name, size: bytes.length, data: fs.Bytes.fromUint8Array(bytes),
-    updatedAt: fs.serverTimestamp(), updatedBy: user.email
+    name, size: bytes.length, data: fs.Bytes.fromUint8Array(bytes), updatedAt: fs.serverTimestamp()
   });
+  // mergeFields reemplaza la ficha completa, así desaparece el correo que guardaba la versión anterior.
   batch.set(fs.doc(db, "people", slug), {
-    pdf: { name, size: bytes.length, updatedAt: fs.serverTimestamp(), by: user.email }
-  }, { merge: true });
+    pdf: { name, size: bytes.length, updatedAt: fs.serverTimestamp() }
+  }, { mergeFields: ["pdf"] });
   await batch.commit();
 }
 
