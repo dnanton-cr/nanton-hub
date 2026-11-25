@@ -1,0 +1,68 @@
+{
+  "lang": "en",
+  "name": "Daniel Luis Nanton Barral",
+  "headline": "Senior Project Manager · Change Management Lead",
+  "contact": {
+    "location": "San José, Costa Rica",
+    "phone": "+506 8861-5998",
+    "email": "dnanton@gmail.com",
+    "linkedin": "dnanton",
+    "languages": "English (fluent) · Spanish (native) · Portuguese (fluent)"
+  },
+  "summary": "Results-driven Senior Project Manager and Change Management Lead with over 25 years of experience directing enterprise IT transformations, core banking migrations, and cross-border regulatory reporting projects across Latin America. Proven track record in multi-country stakeholder management, operational risk reduction, financial reporting optimization, and enterprise Artificial Intelligence (AI) process automation. Seeking a Senior Project Manager, Change Management Lead, or Transformation Manager role offering remote work or international relocation (Canada / Europe).",
+  "skills": [
+    "**Project management and strategy:** Enterprise change management, end-to-end core banking migrations, regulatory reporting compliance, cross-border stakeholder management, Agile, Scrum, Kanban, PMO leadership, vendor negotiation, operational risk reduction.",
+    "**Artificial intelligence and emerging tech:** Enterprise AI champion, generative AI process automation, machine learning integration, full-stack web development architecture.",
+    "**Data analytics and software tools:** Python, SQL, Google BigQuery, Tableau, Power Query, Microsoft Project, advanced Google Sheets, Firebase, Vercel, GitHub, Antigravity, Oracle Siebel CRM, IBM DB2."
+  ],
+  "experience": [
+    {
+      "org": "CITI · San José, Costa Rica",
+      "role": "Transformation & Change Management Lead / Senior Project Manager",
+      "period": "Jan 2022 – Present",
+      "bullets": [
+        "**LATAM end-to-end regulatory reporting migration:** Lead change management and project management strategy for a multi-year financial transformation migrating end-to-end regulatory reporting platforms across 6 Latin American countries within a 3-year timeline.",
+        "**Artificial intelligence (AI) champion:** Design and implement AI-driven process automation tools across business reporting units, eliminating manual entry risks and decreasing human error in complex financial calculations.",
+        "**Brazil core general ledger migration:** Spearheaded change management and PM streams migrating Brazil's core general ledger from a legacy 40-year-old localized system to a standardized global corporate core platform."
+      ]
+    },
+    {
+      "org": "BAC Credomatic · San José, Costa Rica",
+      "role": "Regional Technology & Customer Experience (CX) Manager",
+      "period": "Mar 2000 – Dec 2010",
+      "bullets": [
+        "Directed cross-functional technology and operations teams across 6 countries, driving digital transformation, core banking data integration, and regional project management.",
+        "**Regional CRM and CX transformation (2004–2010):** Established a multi-country unit to deploy Oracle Siebel CRM across 6 countries; extracted legacy core banking data (IBM DB2, IBS Core) for executive dashboards; negotiated $6M+ in technology vendor contracts using Six Sigma methodologies.",
+        "**IT operations and data warehouse (2000–2004):** Managed IT infrastructure ($1M budget, 15 specialists) supporting branch network and online banking; achieved ISO-9001 certification within 6 months. Founded the corporate Data Warehouse department to automate multi-country profitability analytics."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "org": "Kawori · Local investment platform",
+      "role": "Founder & Lead Developer",
+      "period": "",
+      "url": "https://kawori-cr.vercel.app/",
+      "bullets": [
+        "Architected and built an AI-powered local investment analysis web platform for Costa Rican Small and Medium Enterprises (SMEs) using modern cloud infrastructure (Antigravity IDE, Firebase, GitHub, Vercel)."
+      ]
+    },
+    {
+      "org": "Grúas y Montacargas GMT",
+      "role": "Founder & Operations Director",
+      "period": "Aug 2008 – Jan 2025",
+      "bullets": [
+        "Founded and managed heavy equipment rental operations, reducing operating expenses by 60% through process optimization and strategic partnerships. Successfully negotiated and executed the sale of the business in January 2025."
+      ]
+    }
+  ],
+  "education": [
+    "**MBA (Master of Business Administration)** – INCAE Business School (2001 – 2003)",
+    "**B.S. in Computer Science** – Universidad de Costa Rica (1988 – 1995)",
+    "**Google Data Analytics Professional Certificate** – Coursera (Oct 2021)"
+  ],
+  "extra": [
+    "**Wellness and health:** Active endurance sports practitioner (cycling, lap swimming, running, weight lifting) and health-conscious lifestyle.",
+    "**Hobbies:** Artisanal baking and fermentation, literature book club member, foreign languages."
+  ]
+}

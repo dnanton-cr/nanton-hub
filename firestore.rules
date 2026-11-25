@@ -1,0 +1,36 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+
+    function signedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+    function memberDoc() {
+      return get(/databases/$(db)/documents/members/$(request.auth.token.email)).data;
+    }
+    function canEdit(slug) {
+      return signedIn()
+        && exists(/databases/$(db)/documents/members/$(request.auth.token.email))
+        && (memberDoc().admin == true || memberDoc().slug == slug);
+    }
+
+    // Quién puede editar. Se crea a mano en la consola; desde el sitio no se puede escribir.
+    match /members/{email} {
+      allow read: if signedIn() && request.auth.token.email == email;
+      allow write: if false;
+    }
+
+    // Currículo vigente: lo ve cualquiera, lo edita su dueño o un administrador.
+    match /people/{slug} {
+      allow read: if true;
+      allow create, update: if canEdit(slug);
+      allow delete: if false;
+
+      // Historial: solo editores; las versiones nunca se modifican ni se borran.
+      match /versions/{version} {
+        allow read, create: if canEdit(slug);
+        allow update, delete: if false;
+      }
+    }
+  }
+}
