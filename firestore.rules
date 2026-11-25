@@ -26,6 +26,13 @@ service cloud.firestore {
       allow create, update: if canEdit(slug);
       allow delete: if false;
 
+      // PDF vigente: lo descarga cualquiera, lo reemplaza su dueño o un administrador.
+      match /files/{file} {
+        allow read: if true;
+        allow create, update: if canEdit(slug);
+        allow delete: if false;
+      }
+
       // Historial: solo editores; las versiones nunca se modifican ni se borran.
       match /versions/{version} {
         allow read, create: if canEdit(slug);

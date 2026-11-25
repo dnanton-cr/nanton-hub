@@ -36,7 +36,11 @@ async function fromFirestore(slug) {
   const c = await core();
   if (!c) return null;
   const snap = await c.fs.getDoc(c.fs.doc(c.db, "people", slug));
-  if (snap.exists() && snap.data().current) return { cv: snap.data().current, source: "firestore", version: snap.data().version };
+  if (snap.exists() && snap.data().current) {
+    const d = snap.data();
+    return { cv: d.current, source: "firestore", version: d.version, pdf: d.pdf || null };
+  }
+  if (snap.exists() && snap.data().pdf) return { cv: null, source: "firestore", pdf: snap.data().pdf };
   return null;
 }
 
@@ -62,7 +66,9 @@ export async function saveCv(slug, cv, note, user) {
   const vref = fs.doc(fs.collection(db, "people", slug, "versions"));
   const batch = fs.writeBatch(db);
   batch.set(vref, { cv: clean, version: n, note: note || "", createdAt: fs.serverTimestamp(), createdBy: user.email });
-  batch.set(ref, { current: clean, version: n, updatedAt: fs.serverTimestamp(), updatedBy: user.email }, { merge: true });
+  // mergeFields reemplaza `current` completo; así un dato borrado en el formulario también desaparece del público.
+  batch.set(ref, { current: clean, version: n, updatedAt: fs.serverTimestamp(), updatedBy: user.email },
+    { mergeFields: ["current", "version", "updatedAt", "updatedBy"] });
   await batch.commit();
   return n;
 }
@@ -84,4 +90,34 @@ export async function getMember(email) {
   const k = await kit();
   const s = await k.fs.getDoc(k.fs.doc(k.db, "members", email));
   return s.exists() ? s.data() : null;
+}
+
+// ---- PDF dentro de Firestore (sin Firebase Storage) ----
+// El PDF vive en people/{slug}/files/cv como bytes; en people/{slug} queda solo su ficha (nombre y tamaño).
+// Firestore limita cada documento a 1 MiB, por eso el tope de 900 KB.
+export const PDF_MAX_BYTES = 900 * 1024;
+
+export async function savePdf(slug, name, bytes, user) {
+  const { fs, db } = await core();
+  const batch = fs.writeBatch(db);
+  batch.set(fs.doc(db, "people", slug, "files", "cv"), {
+    name, size: bytes.length, data: fs.Bytes.fromUint8Array(bytes),
+    updatedAt: fs.serverTimestamp(), updatedBy: user.email
+  });
+  batch.set(fs.doc(db, "people", slug), {
+    pdf: { name, size: bytes.length, updatedAt: fs.serverTimestamp(), by: user.email }
+  }, { merge: true });
+  await batch.commit();
+}
+
+export async function downloadPdf(slug, name) {
+  const { fs, db } = await core();
+  const snap = await fs.getDoc(fs.doc(db, "people", slug, "files", "cv"));
+  if (!snap.exists()) throw new Error("El PDF no está disponible.");
+  const blob = new Blob([snap.data().data.toUint8Array()], { type: "application/pdf" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = name || "curriculo.pdf";
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
 }

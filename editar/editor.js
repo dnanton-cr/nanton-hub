@@ -1,7 +1,7 @@
 // Editor de currículos: formulario + historial de versiones. Usa solo las funciones de js/store.js.
 import { h } from "../js/render.js";
 import { PEOPLE, FIREBASE_ENABLED } from "../js/config.js";
-import { loadCv, saveCv, listVersions, signIn, signOutUser, onUser, getMember } from "../js/store.js";
+import { loadCv, saveCv, savePdf, PDF_MAX_BYTES, listVersions, signIn, signOutUser, onUser, getMember } from "../js/store.js";
 
 const root = document.getElementById("editor");
 const msg = h("p", { class: "msg", role: "status" });
@@ -109,6 +109,28 @@ function buildApp(app, user, allowed) {
   form.append(h("div", { class: "savebar" }, note, saveBtn));
   const versions = h("div", { class: "versions" });
 
+  // PDF del currículo (se guarda aparte del formulario)
+  const pdfInfo = h("p", { class: "sub" });
+  const pdfIn = h("input", { type: "file", accept: "application/pdf", id: "pdf-file" });
+  const pdfBox = h("div", { class: "pdfbox" }, h("h3", { class: "ed-h" }, "PDF del currículo"), pdfInfo,
+    h("div", { class: "savebar" }, pdfIn, h("button", { type: "button", class: "btn ghost sm", onclick: uploadPdf }, "Subir PDF")),
+    h("p", { class: "sub" }, `Máximo ${Math.round(PDF_MAX_BYTES / 1024)} KB. Un PDF nuevo reemplaza al anterior.`));
+  const showPdf = (p) => { pdfInfo.textContent = p ? `PDF actual: ${p.name} (${Math.round(p.size / 1024)} KB)` : "Todavía no hay un PDF subido desde el editor."; };
+
+  async function uploadPdf() {
+    const f = pdfIn.files[0];
+    if (!f) { say("Elija primero un archivo PDF.", true); return; }
+    if (f.type !== "application/pdf") { say("El archivo debe ser un PDF.", true); return; }
+    if (f.size > PDF_MAX_BYTES) { say(`El PDF pesa ${Math.round(f.size / 1024)} KB y el máximo es ${Math.round(PDF_MAX_BYTES / 1024)} KB. Reduzca su tamaño e intente de nuevo.`, true); return; }
+    try {
+      say("Subiendo PDF…");
+      await savePdf(slug, f.name, new Uint8Array(await f.arrayBuffer()), user);
+      showPdf({ name: f.name, size: f.size });
+      pdfIn.value = "";
+      say(`PDF guardado. Ya se puede descargar desde /${slug}.`);
+    } catch (e) { say("No se pudo subir el PDF: " + e.message, true); }
+  }
+
   function fill(cv) {
     const c = cv.contact || {};
     langSel.value = cv.lang || "es";
@@ -137,7 +159,8 @@ function buildApp(app, user, allowed) {
     slug = s;
     say("Cargando…");
     const res = await loadCv(s);
-    fill(res ? res.cv : blank());
+    fill(res && res.cv ? res.cv : blank());
+    showPdf(res ? res.pdf : null);
     say(res ? (res.source === "firestore" ? `Versión ${res.version} cargada desde Firestore.` : "Contenido inicial cargado del archivo. Al guardar se crea la versión 1.") : "Currículo vacío. Llene los campos y guarde.");
     await showVersions();
   }
@@ -168,6 +191,6 @@ function buildApp(app, user, allowed) {
   });
   personSel.addEventListener("change", () => open(personSel.value));
 
-  app.append(top, form, versions);
+  app.append(top, form, pdfBox, versions);
   open(slug);
 }
